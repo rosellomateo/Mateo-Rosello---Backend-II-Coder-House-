@@ -2,6 +2,8 @@ import express from "express"
 import handlebars from "express-handlebars"
 import session from "express-session"
 import MongoStore from "connect-mongo"
+import cookieParser from "cookie-parser"
+import passport from "passport"
 
 import ProductRouter from "./routers/ProductRouter.js"
 import CartRouter from "./routers/CartRouter.js"
@@ -13,7 +15,6 @@ import mongoConection from "./connections/mongoDb.js"
 import 'dotenv/config' 
 import serverHTTP from "./servers/serverHTTP.js"
 import serverWebSocket from "./servers/serverWebSocket.js"
-
 
 const app = express()
 const sessionConfig = {
@@ -34,9 +35,14 @@ const sessionConfig = {
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
+
+app.use(cookieParser())
+app.use(session(sessionConfig))
+
+app.use(passport.initialize())
+app.use(passport.session())
+
 app.use(express.static("./src/public"))
-
-
 app.engine("handlebars",handlebars.engine({helpers: {multiply:(a, b) => a * b,},}))
 app.set("view engine", "handlebars")
 app.set("views", "./src/views")
@@ -45,7 +51,6 @@ const server = serverHTTP(app,process.env.PORT) // Server HHTP
 const websocket = serverWebSocket(server) //Server Websocket
 
 mongoConection(process.env.DB_URL,process.env.DB_NAME) //Connection to MongoDB Atlas
-app.use(session(sessionConfig))
 
 app.use("/api/products",ProductRouter)
 app.use("/api/carts",CartRouter)
