@@ -1,8 +1,9 @@
-import UserModel from "./userModel.js"
+import UserModel from "./Models/userModel.js"
+import MongoDao from "./mongoDAO.js"
 
-class UserDao {
+class UserDao extends MongoDao {
   	constructor(model) {
-    	this.model = model
+    	super(model)
   	}
 
   	async register(user) {
@@ -29,6 +30,14 @@ class UserDao {
 		}
 	}
 
+	async getByFilter(filter) {
+		try {
+			return await this.model.findOne(filter )
+		} catch (error) {
+			throw new Error(error)
+		}
+	}
+
 	async getById(id) {
 		try {
 			return await this.model.findById(id)
@@ -38,4 +47,5 @@ class UserDao {
 	}
 }
 
-export const userDao = new UserDao(UserModel)
+const userDao = new UserDao(UserModel)
+export default userDao

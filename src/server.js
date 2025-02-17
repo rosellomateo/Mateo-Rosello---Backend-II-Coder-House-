@@ -10,11 +10,15 @@ import CartRouter from "./routers/CartRouter.js"
 import ViewsRouter from "./routers/ViewsRouter.js"
 import UserRouter from './routers/UserRouter.js'
 
-import mongoConection from "./connections/mongoDb.js"
+import mongoConection from "./config/mongoDb.js"
+import initializePassport from "./config/passportConfig.js"
 
-import 'dotenv/config' 
+import "dotenv/config"
 import serverHTTP from "./servers/serverHTTP.js"
 import serverWebSocket from "./servers/serverWebSocket.js"
+import errorHandler from "./middlewares/errorHandler.js"
+
+import webSocketMiddleware from './middlewares/WebSocketMiddleware.js'
 
 const app = express()
 const sessionConfig = {
@@ -38,9 +42,12 @@ app.use(express.urlencoded({extended:true}))
 
 app.use(cookieParser())
 app.use(session(sessionConfig))
-
+initializePassport()
 app.use(passport.initialize())
 app.use(passport.session())
+
+
+app.use(errorHandler)
 
 app.use(express.static("./src/public"))
 app.engine("handlebars",handlebars.engine({helpers: {multiply:(a, b) => a * b,},}))
@@ -55,7 +62,4 @@ mongoConection(process.env.DB_URL,process.env.DB_NAME) //Connection to MongoDB A
 app.use("/api/products",ProductRouter)
 app.use("/api/carts",CartRouter)
 app.use("/api/sessions",UserRouter)
-app.use("/",(req, res, next) => {   
-    req.io = websocket;
-    next();
-},ViewsRouter)
+app.use("/",webSocketMiddleware(websocket),ViewsRouter)

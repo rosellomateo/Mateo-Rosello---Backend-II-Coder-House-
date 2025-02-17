@@ -1,11 +1,12 @@
 import {Router} from 'express'
 
 import UserController from "../controllers/UserController.js"
+import passportCall from "../security/passportCall.js"
 
-const router = Router()
+const UserRouter = Router()
 
-router.post("/register", UserController.register)
-router.post("/login", UserController.login)
-router.get("/current")
+UserRouter.post("/register", UserController.register)
+UserRouter.post("/login", UserController.login)
+UserRouter.get("/current",[passportCall('current')],UserController.privateData)
 
-export default router
+export default UserRouter

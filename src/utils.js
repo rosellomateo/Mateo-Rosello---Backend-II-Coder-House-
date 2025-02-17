@@ -6,12 +6,23 @@ export const error500 = (res,error) => {
     return res.status(500).json({ status: "error", error: `error ${error}` })
 }
 
-export const createHash = (password) => {
-    bcrypt.hashSync(password, bcrypt.genSaltSync(10))
+export const createHash = async (password) => {
+    try {
+        const salt = await bcrypt.genSalt(10)
+        const hash = await bcrypt.hash(password, salt)
+        return hash
+    } catch (error) {
+        throw new Error(`error al encriptar la contraseña: ${error}`)
+    }
 }
 
 export const isValidPassword = (password, user) => {
-    bcrypt.compareSync(password, user.password)
+    try {
+        return bcrypt.compareSync(password, user.password)
+    } catch (error) {
+        throw new Error(`error al validar contraseña: ${error}`)
+    }
+    
 }
 
 export default {error500,createHash,isValidPassword}

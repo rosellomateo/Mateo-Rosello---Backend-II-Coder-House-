@@ -12,6 +12,7 @@ class UserService extends Services{
     constructor(){
         super(userDAO)
     }
+    
     async getByEmail(email){
         try {
             return userDAO.getByEmail(email)
@@ -20,9 +21,10 @@ class UserService extends Services{
         }
     }
     async generateToken (user){
-        const {first_name,last_name,email,age,username,password,cart,role} = user
+        const {_id,first_name,last_name,email,age,username,password,cart,role} = user
         
         const payload ={
+            sub: _id,
             first_name:first_name,
             last_name: last_name,
             email:email,
@@ -38,14 +40,18 @@ class UserService extends Services{
     async register (user){
         try {
             const {first_name,last_name,email,age,username,password} = user
+
+            if (!first_name || !last_name || !email || !age || !username || !password ) 
+                throw new Error(`fields incomplete`)
             
-            const userDb = await userDAO.findOne({username: username})
+            const userDb = await userDAO.getByFilter({first_name,last_name,email,username})
             if(userDb)
                 throw new Error(`User: ${username} already exists.`)
             
             const newCart = await cartServices.newCart()
-            const passwordHash = createHash(password)
             
+            const passwordHash = await createHash(password)
+
             const newUser = {
                 first_name:first_name,
                 last_name: last_name,
@@ -61,10 +67,17 @@ class UserService extends Services{
             throw new Error(`Error to create User: ${error}`)
         }
     }
-    async login (email,password){
+    
+    async login (user){
         try {
-            const userDb = await userDAO.findByEmail(email)
-            if(!userDb){
+            const {email,password} = user
+
+            if (!email || !password ) 
+                throw new Error(`fields incomplete`)
+
+            const userDB = await userDAO.getByEmail(email)
+
+            if(!userDB){
                 throw new Error(`User: ${username} don't exist`)
                 return
             }
@@ -82,4 +95,6 @@ class UserService extends Services{
     }
 }
 
-export const userService = new UserService(userDAO)
+const userService = new UserService(userDAO)
+
+export default userService
