@@ -22,7 +22,5 @@ export const isValidPassword = (password, user) => {
     } catch (error) {
         throw new Error(`error al validar contraseña: ${error}`)
     }
-    
 }
-
-export default {error500,createHash,isValidPassword}
+ 

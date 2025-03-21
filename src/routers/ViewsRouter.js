@@ -1,14 +1,18 @@
-import express from "express"
+import {Router} from 'express'
+
 import ViewController from "../controllers/ViewsController.js"
+import {passportCall} from "../security/passportCall.js"
+const ViewsRouter = Router()
 
-const ViewsRouter = express.Router()
+ViewsRouter.get("/",[passportCall('current')], ViewController.redirectToProducts)
+ViewsRouter.get("/products",[passportCall('current')], ViewController.renderProducts)
+ViewsRouter.get("/carts/:cid",[passportCall('current')], ViewController.renderCart)
+ViewsRouter.get("/products/:pid",[passportCall('current')], ViewController.renderProductDetails)
+//ViewsRouter.get("/realtimeproducts",[passportCall('current')], ViewController.renderRealTimeProducts)
+ViewsRouter.get("/login",ViewController.renderLogin)
+ViewsRouter.get("/register",ViewController.renderRegister)
+ViewsRouter.get("/forgot-password",ViewController.renderForgotPassword)
+ViewsRouter.get("/reset-password/:token",ViewController.renderResetPassword)
 
-ViewsRouter.get("/", ViewController.redirectToProducts)
-ViewsRouter.get("/products", ViewController.renderProducts)
-ViewsRouter.get("/carts/:cid", ViewController.renderCart)
-ViewsRouter.get("/products/:pid", ViewController.renderProductDetails)
-ViewsRouter.get("/realtimeproducts", ViewController.renderRealTimeProducts)
-ViewsRouter.post("/login")
-ViewsRouter.get("/profile")
 
 export default ViewsRouter

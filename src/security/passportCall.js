@@ -1,6 +1,9 @@
 import passport from 'passport'
+import jwt from 'jsonwebtoken'
+import { secretKey } from './secretKey.js'
 
-const passportCall = (strategy) => {
+
+export const passportCall = (strategy) => {
     return async(req, res, next)=>{
         passport.authenticate(strategy, (err, user, info)=>{
             if(err){
@@ -8,7 +11,7 @@ const passportCall = (strategy) => {
             }
                 
             if(!user){
-                return res.status(401).json({error: info.messages ? info.messages : info.toString()})
+                return res.redirect('/login')
             } 
             req.user = user
             next()
@@ -16,4 +19,25 @@ const passportCall = (strategy) => {
     }
 }
 
-export default passportCall
+export const isAdmin = () => {
+    return async (req, res, next) => {
+      try {
+        const token = req.cookies.token
+        
+        if (!token) {
+            return res.status(401).json({ error: 'No token provided' })
+        }
+  
+        const user = jwt.verify(token, secretKey)
+        console.log(user)
+        if (user.role === 'admin') {
+            next()
+        } else {
+            return res.status(403).json({ error: 'Access denied: not admin' })
+        }
+      } catch (error) {
+        console.error('Auth error:', error.message)
+        return res.status(401).json({ error: 'Invalid or expired token' })
+      }
+    }
+}

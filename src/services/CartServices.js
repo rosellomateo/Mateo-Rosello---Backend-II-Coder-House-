@@ -1,23 +1,21 @@
-import cartModel from "../DAO/models/cartModel.js"
-import mongoose from "mongoose"
+import CartDAO from '../DAO/Mongo/cartDAO.mongo.js'
+import Services from './Services.js'
 
-class CartServices{
+class CartServices extends Services{
+    constructor(DAO){
+        super(DAO)
+    }
     async addProduct(idCart,idProduct){
         try {
-            const result = await cartModel.updateOne( {_id: idCart, "products.product": idProduct },{$inc: {"products.$.quantity": 1}})
-            if (result.matchedCount === 0) {
-                await cartModel.updateOne({_id: idCart },{$push: {products: { product: idProduct,quantity: 1}}})
-            }
-            return result
+            return await CartDAO.addProduct(idCart,idProduct)
         } catch (error) {
-            console.error(`Error adding product to cart: ${error.message}`)
+            throw new Error(`Error adding product to cart: ${error.message}`)
         }
     }
 
     async newCart(){
         try {
-            let newCart = {}
-            return await cartModel.create(newCart)
+            return await CartDAO.createCart()  
         } catch (error) {
             console.error(`error to create Cart: ${error}`)
         }
@@ -26,7 +24,7 @@ class CartServices{
     
     async getCartById(idCart){
         try{
-            return await cartModel.findById(idCart).populate('products.product').lean()
+            return await CartDAO.getCartById(idCart)
         }catch(error){
             console.error(`error to get Cart: ${error}`)
         }
@@ -35,7 +33,7 @@ class CartServices{
 
     async updateCart(idCart,products){
         try {
-            return await cartModel.updateOne({_id:idCart},{products: products})
+            return await CartDAO.updateCart(idCart,products)
         } catch (error) {
             console.error(`error to update products: ${error}`)
         }
@@ -43,12 +41,7 @@ class CartServices{
 
     async updateQuantity(idCart,idProduct,quantity){
         try {
-            let result = await cartModel.findOne({_id:idCart,"products.product": idProduct})
-            if(result){
-                return await cartModel.updateOne({_id:idCart,"products.product": idProduct},{$set: {"products.$.quantity":quantity}})
-            }else{
-                return await cartModel.updateOne({_id:idCart},{$push:{products:{product:idProduct,quantity:quantity}}})
-            }
+            return await CartDAO.updateQuantity(idCart,idProduct,quantity)
         } catch (error) {
             console.error(`error to update products: ${error}`)
         }
@@ -56,29 +49,29 @@ class CartServices{
 
     async getProduct(idCart,code){
         try{
-            return await cartModel.findOne({ _id: idCart, "products.product.code": code }).populate('products.product') 
+            return await CartDAO.getProduct(idCart,code)
         }catch(error){
-            console.error(`error to get product: ${error}`)
+            throw new Error(`error to get product: ${error}`)
         }
     }
 
     async deleteProduct(idCart,idProduct){
         try{
-            return await cartModel.updateOne({_id: idCart},{$pull: {products:{product:new mongoose.Types.ObjectId(idProduct)}}})
+            return await CartDAO.deleteProduct(idCart,idProduct)
         }catch(error){
-            console.error(`error to delete product: ${error}`)
+            throw new Error(`error to delete product: ${error}`)
         }
     }
 
-    static async clearCart(idCart){
+    async clearCart(idCart){
         try{
-            return await cartModel.updateOne({_id:idCart},{products:[]})
+            return await CartDAO.clearCart(idCart)
         }catch(error){
-            console.error(`error to delete product: ${error}`)
+            throw new Error(`error to delete product: ${error}`)
         }
         
     }
 }
 
-const cartServices = new CartServices()
+const cartServices = new CartServices(CartDAO)
 export default cartServices

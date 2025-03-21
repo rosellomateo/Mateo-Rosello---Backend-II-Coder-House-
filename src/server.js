@@ -46,7 +46,6 @@ initializePassport()
 app.use(passport.initialize())
 app.use(passport.session())
 
-
 app.use(errorHandler)
 
 app.use(express.static("./src/public"))
@@ -63,3 +62,4 @@ app.use("/api/products",ProductRouter)
 app.use("/api/carts",CartRouter)
 app.use("/api/sessions",UserRouter)
 app.use("/",webSocketMiddleware(websocket),ViewsRouter)
+

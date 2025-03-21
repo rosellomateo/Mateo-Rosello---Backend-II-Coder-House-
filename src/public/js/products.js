@@ -1,10 +1,14 @@
+const cartId = document.getElementById('cartIdInput').value
+console.log(cartId)
 document.getElementById('add-to-cart-form').addEventListener('submit', async (event) => {
     event.preventDefault()
 
     const productId = document.querySelector('[name="productId"]').value
+
     const quantityValue = document.getElementById('quantity').value
     console.log(quantity)
 
+  
     const data = {
         quantity: quantityValue
     }

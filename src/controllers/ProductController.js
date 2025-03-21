@@ -1,4 +1,6 @@
 import ProductServices from "../services/ProductServices.js"
+import ProductReqDTO from "../DTO/ProductDTO.REQ.js"
+import ProductResDTO from "../DTO/ProductDTO.RES.js"
 import {error500} from "../utils.js"
 
 const getProducts = async (req, res) => {
@@ -51,17 +53,20 @@ const getProductById = async (req, res) => {
     let productId = req.params.pid
     try {
         let productDb = await ProductServices.getProductById(productId)
+        let productDTO = new ProductResDTO(productDb)
         if (!productDb) {
             return res.status(404).send({ status: "error", error: "product not found" })
         }
-        return res.status(200).send(productDb)
+        return res.status(200).send(productDTO)
     } catch (error) {
         error500(res, error)
     }
 }
 
 const createProduct = async (req, res) => {
-    let { title, description, code, price, status, stock, category, thumbnails } = req.body
+    let body = req.body
+    
+    let { title, description, code, price, stock, category } = body
     price = Number(price)
     stock = Number(stock)
 
@@ -73,20 +78,24 @@ const createProduct = async (req, res) => {
     }
 
     try {
+        let productDTO = new ProductReqDTO(body)
         let productDb = await ProductServices.getProduct(title, code)
         if (productDb) {
             return res.status(400).send({ status: "error", message: "Product exists" })
         }
-        ProductServices.addProduct(title, description, code, price, status, stock, category, thumbnails)
-        return res.status(201).send({ status: "success", message: "product created" })
+        
+        let response = await ProductServices.addProduct(productDTO)
+        
+        return res.status(201).send({ status: "success", message: `product created: ${response}` })
     } catch (error) {
         error500(res, error)
     }
 }
 
 const updateProduct = async (req, res) => {
-    let { title, description, code, price, status, stock, category, thumbnails } = req.body
-    let productId = req.params.pid
+    const body = req.body
+    const productDTO = new ProductReqDTO(body)
+    const productId = req.params.pid
 
     productId = Number(productId)
     if (isNaN(productId)) {
@@ -95,11 +104,14 @@ const updateProduct = async (req, res) => {
 
     try {
         let productDb = await ProductServices.getProductById(productId)
+        
         if (!productDb) {
             return res.status(404).json({ status: "error", error: "product not exist" })
         }
-        await ProductServices.updateProduct(productId, title, description, code, price, status, stock, category, thumbnails)
-        return res.status(200).json({ status: "success", message: "product updated" })
+        
+        const response = await ProductServices.updateProduct(productId,productDTO)
+        
+        return res.status(200).json({ status: "success", message: `product updated: ${response}` })
     } catch (error) {
         error500(res, error)
     }
@@ -115,11 +127,14 @@ const deleteProduct = async (req, res) => {
 
     try {
         let productDb = await ProductServices.getProductById(productId)
+        
         if (!productDb) {
             return res.status(404).json({ status: "error", error: "product not found" })
         }
-        ProductServices.deleteProduct(productId)
-        return res.status(200).json({ status: "success", message: "product deleted" })
+
+        let response = await ProductServices.deleteProduct(productId)
+        
+        return res.status(200).json({ status: "success", message: `product deleted: ${response}` })
     } catch (error) {
         error500(res, error)
     }

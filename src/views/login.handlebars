@@ -1,0 +1,17 @@
+<div class="login-container">
+    <h2>Iniciar Sesión</h2>
+    <form action="/login" method="POST">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit">Ingresar</button>
+    </form>
+    <p>No tenés cuenta? <a href="/register">Registrate</a></p>
+    <p>Te olvidaste tu contraseña? <a href="/forgot-password">Restablecer</a></p>
+</div>
+
+<link rel="stylesheet" href="/css/stylesLogin.css">
+<script src="/js/Login.js"></script>

@@ -1,12 +1,14 @@
-import express from "express"
-import ProductController from "../controllers/ProductController.js"
+import {Router} from "express"
 
-const ProductRouter = express.Router()
+import ProductController from "../controllers/ProductController.js"
+import { isAdmin } from "../security/passportCall.js"
+
+const ProductRouter = Router()
 
 ProductRouter.get("/", ProductController.getProducts)
 ProductRouter.get("/:pid", ProductController.getProductById)
-ProductRouter.post("/", ProductController.createProduct)
-ProductRouter.put("/:pid", ProductController.updateProduct)
-ProductRouter.delete("/:pid", ProductController.deleteProduct)
+ProductRouter.post("/",[isAdmin()],ProductController.createProduct)
+ProductRouter.put("/:pid",[isAdmin()], ProductController.updateProduct)
+ProductRouter.delete("/:pid",[isAdmin()], ProductController.deleteProduct)
 
 export default ProductRouter

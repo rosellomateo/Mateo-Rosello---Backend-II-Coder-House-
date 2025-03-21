@@ -1,25 +1,26 @@
 <div class="product-container">
-    <h2>{{title}}</h2>
-    <p><strong>Código:</strong> {{code}}</p>
-    <p><strong>Descripción:</strong> {{description}}</p>
-    <p><strong>Precio:</strong> ${{price}}</p>
-    <p><strong>Stock:</strong> {{stock}}</p>
-    <p><strong>Categoría:</strong> {{category}}</p>
-    <p class="{{#if status}}status-available{{else}}status-not-available{{/if}}">
-        <strong>Estado:</strong> {{#if status}}Disponible{{else}}Agotado{{/if}}
+    <p id="cartIdInput" value="{{cart}}">
+    <h2>{{product.title}}</h2>
+    <p><strong>Código:</strong> {{product.code}}</p>
+    <p><strong>Descripción:</strong> {{product.description}}</p>
+    <p><strong>Precio:</strong> ${{product.price}}</p>
+    <p><strong>Stock:</strong> {{product.stock}}</p>
+    <p><strong>Categoría:</strong> {{product.category}}</p>
+    <p class="{{#if product.status}}status-available{{else}}status-not-available{{/if}}">
+        <strong>Estado:</strong> {{#if product.status}}Disponible{{else}}Agotado{{/if}}
     </p>
 
-    {{#if thumbnails}}
+    {{#if product.thumbnails}}
     <h3>Imágenes del producto:</h3>
     <div class="product-images">
-        {{#each thumbnails}}
+        {{#each product.thumbnails}}
         <img src="{{this}}" alt="Imagen del producto">
         {{/each}}
     </div>
     {{/if}}
 
     <form id="add-to-cart-form">
-        <input type="hidden" name="productId" value="{{_id}}">
+        <input type="hidden" name="productId" value="{{product._id}}">
         <label for="quantity">Cantidad:</label>
         <input type="number" name="quantity" value="1" min="1" id="quantity" required>
         <button type="submit">Agregar al carrito</button>
